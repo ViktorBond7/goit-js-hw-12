@@ -12,11 +12,11 @@
     />
   </head>
   <body>
-    <form class="form">
+    <form class="form search-form">
       <input
         class="search-input"
         type="text"
-        name="search"
+        name="query"
         placeholder="Search images..."
         required
       />
@@ -24,8 +24,11 @@
       <button class="search-btn" type="submit">Search</button>
     </form>
 
+    <ul class="gallery articles"></ul>
     <span class="loader"></span>
-    <ul class="gallery"></ul>
+    <button class="search-more" type="submit" data-action="load-more">
+      Load more
+    </button>
 
     <script type="module" src="./main.js" defer></script>
   </body>
