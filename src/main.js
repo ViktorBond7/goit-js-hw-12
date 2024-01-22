@@ -14,8 +14,6 @@ const searchInput = document.querySelector('.search-input');
 
 loader.style.display = 'none';
 
-loader.style.display = 'blok';
-
 loadMoreBtnRes.style.display = 'none';
 
 let pageA = 1;
@@ -53,10 +51,7 @@ async function fetchImg(query) {
   }
 }
 
-async function rendersImg(data) {
-  // const { totalHits } = await fetchImg(searchQuery, pageA, perPage);
-  // const totalHits = 10;
-
+function rendersImg(data) {
   if (data.hits.length > 0) {
     const imgs = data.hits.reduce(
       (
@@ -94,48 +89,8 @@ async function rendersImg(data) {
   }
 }
 
-//   if (pageA * perPage <= totalHits) {
-//     const imgs = data.hits.reduce(
-//       (
-//         html,
-//         { webformatURL, largeImageURL, tags, likes, views, comments, downloads }
-//       ) =>
-//         html +
-//         `<li class="gallery-item">
-//           <a class="gallery-link" href="${largeImageURL}">
-//            <img class="gallery-image"
-//            src="${webformatURL}"
-//            alt="${tags}"
-//            />
-//           </a>
-//           <div class="description">
-//           <p><b>Likes</b>${likes}</p>
-//           <p><b>Views</b>${views}</p>
-//           <p><b>Comments</b>${comments}</p>
-//           <p><b>Downloads</b>${downloads}</p>
-//           </div>
-//         </li>`,
-//       ''
-//     );
-//     galleryRes.insertAdjacentHTML('beforeend', imgs);
-//     styleRef.refresh();
-//   } else {
-//     iziToast.info({
-//       position: 'topRight',
-//       width: '10px',
-//       // message: "We're sorry, but you've reached the end of search results",
-//     });
-//   }
-// }
-let doFetch = null;
-
 formRes.addEventListener('submit', async e => {
   e.preventDefault();
-
-  if (doFetch != null) {
-    loadMoreBtnRes.removeEventListener('click', doFetch);
-    doFetch = null;
-  }
 
   galleryRes.innerHTML = '';
   loader.style.display = 'block';
@@ -159,7 +114,6 @@ const scrollToNextGroup = () => {
 loadMoreBtnRes.addEventListener('click', async () => {
   const { totalHits } = await fetchImg(searchQuery, pageA, perPage);
 
-  // const totalHits = 10;
   if (pageA * perPage >= totalHits) {
     iziToast.info({
       position: 'topRight',
@@ -174,45 +128,3 @@ loadMoreBtnRes.addEventListener('click', async () => {
     scrollToNextGroup();
   }
 });
-// const totalHits = 10;
-// function loadMoreButton(totalHits) {
-//   if (pageA * perPage >= totalHits) {
-//     loadMoreButton.style.display = 'none';
-//     iziToast.info({
-//       message: "We're sorry, but you've reached the end of search results.",
-//     });
-//   } else {
-//     loadMoreBtnRes.style.display = 'flex';
-//     loadMoreBtnRes.classList.remove('hide');
-//   }
-// }
-
-// function loadMoreButton(totalHits) {
-//   const totalPages = Math.ceil(totalHits / perPage);
-//   if (pageA > totalPages) {
-//     iziToast.info({
-//       message: "We're sorry, but you've reached the end of search results.",
-//     });
-//   } else {
-//     loadMoreBtnRes.style.display = 'none';
-//     loadMoreBtnRes.classList.remove('hide');
-//   }
-// }
-
-// if (doFetch != null) {
-//     loadMoreBtn.removeEventListener("click", doFetch);
-//     doFetch = null;
-//   }
-
-//   const fetchArticles = createGetArticlesRequest(query);
-
-//   doFetch = async () => {
-//     const articles = await fetchArticles()
-
-//     renderArticles(articles);
-//   }
-
-//   await doFetch
-
-//   loadMoreBtn.addEventListener("click", doFetch);
-// });
