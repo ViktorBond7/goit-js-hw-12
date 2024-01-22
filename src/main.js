@@ -4,8 +4,8 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
 
-const formRes = document.querySelector('.form');
-const galleryRes = document.querySelector('.gallery');
+const searchFormRes = document.querySelector('.form');
+const imageGalleryRes = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
 const loadMoreBtnRes = document.querySelector(
   'button[data-action="load-more"]'
@@ -14,10 +14,8 @@ const searchInput = document.querySelector('.search-input');
 
 loader.style.display = 'none';
 
-loadMoreBtnRes.style.display = 'none';
-
-let pageA = 1;
-let perPage = 40;
+let currentPage = 1;
+const perPage = 3;
 let searchQuery = '';
 
 const styleRef = new SimpleLightbox('.gallery a', {
@@ -37,7 +35,7 @@ async function fetchImg(query) {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    page: pageA,
+    page: currentPage,
     per_page: perPage,
   };
   const params = new URLSearchParams(searchParams);
@@ -46,6 +44,12 @@ async function fetchImg(query) {
     return response.data;
   } catch (error) {
     console.error(error);
+    iziToast.error({
+      position: 'topRight',
+      width: '10px',
+      message:
+        'Sorry, there are no images matching your search query. Please try again',
+    });
   } finally {
     loader.style.display = 'none';
   }
@@ -75,9 +79,8 @@ function rendersImg(data) {
         </li>`,
       ''
     );
-    galleryRes.insertAdjacentHTML('beforeend', imgs);
+    imageGalleryRes.insertAdjacentHTML('beforeend', imgs);
     styleRef.refresh();
-    loadMoreBtnRes.style.display = 'block';
   } else {
     loadMoreBtnRes.style.display = 'none';
     iziToast.error({
@@ -89,16 +92,19 @@ function rendersImg(data) {
   }
 }
 
-formRes.addEventListener('submit', async e => {
+searchFormRes.addEventListener('submit', async e => {
   e.preventDefault();
-
-  galleryRes.innerHTML = '';
+  loadMoreBtnRes.style.display = 'none';
+  imageGalleryRes.innerHTML = '';
   loader.style.display = 'block';
-  pageA = 1;
+  currentPage = 1;
 
   const query = searchInput.value.trim();
-  const fetchImgs = await fetchImg(query, pageA);
+  const fetchImgs = await fetchImg(query, currentPage);
   rendersImg(fetchImgs);
+  if (fetchImgs > 0) {
+    loadMoreBtnRes.style.display = 'block';
+  }
   e.target.reset();
 });
 
@@ -112,19 +118,20 @@ const scrollToNextGroup = () => {
 };
 
 loadMoreBtnRes.addEventListener('click', async () => {
-  const { totalHits } = await fetchImg(searchQuery, pageA, perPage);
+  loadMoreBtnRes.style.display = 'none';
+  const { totalHits } = await fetchImg(searchQuery, currentPage, perPage);
 
-  if (pageA * perPage >= totalHits) {
+  loader.style.display = 'block';
+  if (currentPage * perPage >= totalHits) {
     iziToast.info({
       position: 'topRight',
       message: "We're sorry, but you've reached the end of search results.",
     });
-    loadMoreBtnRes.style.display = 'none';
   } else {
-    loadMoreBtnRes.style.display = 'flex';
-    pageA += 1;
-    const fetcImgRen = await fetchImg(searchQuery, pageA);
+    currentPage += 1;
+    const fetcImgRen = await fetchImg(searchQuery, currentPage);
     rendersImg(fetcImgRen);
+    loadMoreBtnRes.style.display = 'block';
     scrollToNextGroup();
   }
 });

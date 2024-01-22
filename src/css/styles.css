@@ -206,6 +206,7 @@ button {
   animation: rotation 1s linear infinite;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 50px;
 }
 .loader::after {
   content: '';
@@ -228,7 +229,7 @@ button {
 }
 
 .search-more {
-  display: flex;
+  display: block;
   width: 125px;
   height: 40px;
   border-radius: 8px;
@@ -244,4 +245,5 @@ button {
   margin-top: 80px;
   margin-left: auto;
   margin-right: auto;
+  display: none;
 }
