@@ -17,7 +17,7 @@ loader.style.display = 'none';
 loadMoreBtnRes.style.display = 'none';
 
 let pageA = 1;
-let perPage = 3;
+let perPage = 40;
 let searchQuery = '';
 
 const styleRef = new SimpleLightbox('.gallery a', {
