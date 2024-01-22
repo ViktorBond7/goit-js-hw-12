@@ -11,16 +11,16 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/2.0.0/modern-normalize.min.css"
     />
     <script type="module" crossorigin src="/goit-js-hw-12/commonHelpers.js"></script>
-    <link rel="modulepreload" crossorigin href="/goit-js-hw-12/assets/vendor-46aac873.js">
+    <link rel="modulepreload" crossorigin href="/goit-js-hw-12/assets/vendor-89feecc5.js">
     <link rel="stylesheet" href="/goit-js-hw-12/assets/vendor-eb6030bc.css">
-    <link rel="stylesheet" href="/goit-js-hw-12/assets/index-160fdc2f.css">
+    <link rel="stylesheet" href="/goit-js-hw-12/assets/index-aaabe026.css">
   </head>
   <body>
-    <form class="form">
+    <form class="form search-form">
       <input
         class="search-input"
         type="text"
-        name="search"
+        name="query"
         placeholder="Search images..."
         required
       />
@@ -28,8 +28,11 @@
       <button class="search-btn" type="submit">Search</button>
     </form>
 
+    <ul class="gallery articles"></ul>
     <span class="loader"></span>
-    <ul class="gallery"></ul>
+    <button class="search-more" type="submit" data-action="load-more">
+      Load more
+    </button>
 
     
   </body>
