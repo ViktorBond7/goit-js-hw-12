@@ -15,7 +15,7 @@ const searchInput = document.querySelector('.search-input');
 loader.style.display = 'none';
 
 let currentPage = 1;
-const perPage = 3;
+const perPage = 40;
 let searchQuery = '';
 
 const styleRef = new SimpleLightbox('.gallery a', {
