@@ -142,18 +142,14 @@ button {
 
 .gallery {
   display: flex;
-  /* padding: 24px 156px; */
+
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   gap: 46px 24px;
   background: #fff;
 }
-/* .gallery-item {
-  border: 20px;
-  background-color: #ff3d00;
-  display: none;
-} */
+
 .description {
   display: flex;
   gap: 20px;
@@ -207,6 +203,8 @@ button {
   margin-left: auto;
   margin-right: auto;
   margin-top: 50px;
+  display: flex;
+  justify-content: center;
 }
 .loader::after {
   content: '';
@@ -245,5 +243,9 @@ button {
   margin-top: 80px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.hidden {
   display: none;
+  opacity: 0;
 }

@@ -2,21 +2,15 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import axios from 'axios';
+import { hitsTemplate } from './renderImg';
+import { fetchHits } from './newApi';
 
-const searchFormRes = document.querySelector('.form');
-const imageGalleryRes = document.querySelector('.gallery');
-const loader = document.querySelector('.loader');
-const loadMoreBtnRes = document.querySelector(
-  'button[data-action="load-more"]'
-);
-const searchInput = document.querySelector('.search-input');
-
-loader.style.display = 'none';
-
-let currentPage = 1;
-const perPage = 40;
-let searchQuery = '';
+const refs = {
+  searchFormRes: document.querySelector('.form'),
+  imageGalleryRes: document.querySelector('.gallery'),
+  btnLoadMore: document.querySelector('button[data-action="load-more"]'),
+  loadElem: document.querySelector('.loader'),
+};
 
 const styleRef = new SimpleLightbox('.gallery a', {
   nav: true,
@@ -27,111 +21,103 @@ const styleRef = new SimpleLightbox('.gallery a', {
   docClose: true,
 });
 
-async function fetchImg(query) {
-  searchQuery = query;
-  const searchParams = {
-    key: '41712066-bd7b5e249df7a86bd45ef70ea',
-    q: searchQuery,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    page: currentPage,
-    per_page: perPage,
-  };
-  const params = new URLSearchParams(searchParams);
-  try {
-    const response = await axios.get(`https://pixabay.com/api/?${params}`);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    iziToast.error({
-      position: 'topRight',
-      width: '10px',
-      message:
-        'Sorry, there are no images matching your search query. Please try again',
-    });
-  } finally {
-    loader.style.display = 'none';
-  }
-}
+// ======================================
+let query;
+let page;
+let maxPage;
 
-function rendersImg(data) {
-  if (data.hits.length > 0) {
-    const imgs = data.hits.reduce(
-      (
-        html,
-        { webformatURL, largeImageURL, tags, likes, views, comments, downloads }
-      ) =>
-        html +
-        `<li class="gallery-item">
-          <a class="gallery-link" href="${largeImageURL}">
-           <img class="gallery-image"
-           src="${webformatURL}"
-           alt="${tags}"
-           />
-          </a>
-          <div class="description">
-          <p><b>Likes</b>${likes}</p>
-          <p><b>Views</b>${views}</p>
-          <p><b>Comments</b>${comments}</p>
-          <p><b>Downloads</b>${downloads}</p>
-          </div>
-        </li>`,
-      ''
-    );
-    imageGalleryRes.insertAdjacentHTML('beforeend', imgs);
-    styleRef.refresh();
-  } else {
-    loadMoreBtnRes.style.display = 'none';
-    iziToast.error({
-      position: 'topRight',
-      width: '10px',
-      message:
-        'Sorry, there are no images matching your search query. Please try again',
-    });
-  }
-}
+refs.searchFormRes.addEventListener('submit', onFormSubmit);
+refs.btnLoadMore.addEventListener('click', onLoadMoreClick);
 
-searchFormRes.addEventListener('submit', async e => {
+// ======================================
+
+async function onFormSubmit(e) {
   e.preventDefault();
-  loadMoreBtnRes.style.display = 'none';
-  imageGalleryRes.innerHTML = '';
-  loader.style.display = 'block';
-  currentPage = 1;
+  query = e.target.elements.query.value.trim();
+  page = 1;
 
-  const query = searchInput.value.trim();
-  const fetchImgs = await fetchImg(query, currentPage);
-  rendersImg(fetchImgs);
-  if (fetchImgs > 0) {
-    loadMoreBtnRes.style.display = 'block';
+  if (!query) {
+    showError('Empty field');
+    return;
   }
+  showLoader();
+  try {
+    const data = await fetchHits(query, page);
+    if (data.totalHits === 0) {
+      iziToast.error({
+        position: 'topRight',
+        width: '10px',
+        message:
+          'Sorry, there are no images matching your search query. Please try again',
+      });
+      return;
+    }
+
+    maxPage = Math.ceil(data.totalHits / 15);
+
+    refs.imageGalleryRes.innerHTML = '';
+    renderHits(data.hits);
+  } catch (err) {
+    showError(err);
+  }
+
+  hideLoader();
+  checkBtnVisibleStatus();
   e.target.reset();
-});
+}
 
-const scrollToNextGroup = () => {
-  const firstGalleryItem = document.querySelector('.gallery-item:first-child');
-  const galleryItemHeight = firstGalleryItem.getBoundingClientRect().height;
-  window.scrollBy({
-    top: galleryItemHeight * 2,
+async function onLoadMoreClick() {
+  page += 1;
+  showLoader();
+  const data = await fetchHits(query, page);
+  renderHits(data.hits);
+  hideLoader();
+  checkBtnVisibleStatus();
+
+  const height =
+    refs.imageGalleryRes.firstElementChild.getBoundingClientRect().height;
+
+  scrollBy({
     behavior: 'smooth',
+    top: height * 2,
   });
-};
+}
 
-loadMoreBtnRes.addEventListener('click', async () => {
-  loadMoreBtnRes.style.display = 'none';
-  const { totalHits } = await fetchImg(searchQuery, currentPage, perPage);
+function renderHits(hits) {
+  const markup = hitsTemplate(hits);
+  refs.imageGalleryRes.insertAdjacentHTML('beforeend', markup);
+  styleRef.refresh();
+}
 
-  loader.style.display = 'block';
-  if (currentPage * perPage >= totalHits) {
+function showLoadBtn() {
+  refs.btnLoadMore.classList.remove('hidden');
+}
+function hideLoadBtn() {
+  refs.btnLoadMore.classList.add('hidden');
+}
+
+function showLoader() {
+  refs.loadElem.classList.remove('hidden');
+}
+function hideLoader() {
+  refs.loadElem.classList.add('hidden');
+}
+
+function showError(msg) {
+  iziToast.error({
+    title: 'Error',
+    message: msg,
+  });
+}
+
+function checkBtnVisibleStatus() {
+  if (page >= maxPage) {
+    hideLoadBtn();
     iziToast.info({
       position: 'topRight',
       message: "We're sorry, but you've reached the end of search results.",
     });
   } else {
-    currentPage += 1;
-    const fetcImgRen = await fetchImg(searchQuery, currentPage);
-    rendersImg(fetcImgRen);
-    loadMoreBtnRes.style.display = 'block';
-    scrollToNextGroup();
+    showLoadBtn();
   }
-});
+}
