@@ -25,6 +25,7 @@ const styleRef = new SimpleLightbox('.gallery a', {
 let query;
 let page;
 let maxPage;
+let per_page = 15;
 
 refs.searchFormRes.addEventListener('submit', onFormSubmit);
 refs.btnLoadMore.addEventListener('click', onLoadMoreClick);
@@ -42,7 +43,7 @@ async function onFormSubmit(e) {
   }
   showLoader();
   try {
-    const data = await fetchHits(query, page);
+    const data = await fetchHits(query, page, per_page);
     if (data.totalHits === 0) {
       iziToast.error({
         position: 'topRight',
@@ -53,7 +54,7 @@ async function onFormSubmit(e) {
       return;
     }
 
-    maxPage = Math.ceil(data.totalHits / 15);
+    maxPage = Math.ceil(data.totalHits / per_page);
 
     refs.imageGalleryRes.innerHTML = '';
     renderHits(data.hits);
@@ -69,7 +70,7 @@ async function onFormSubmit(e) {
 async function onLoadMoreClick() {
   page += 1;
   showLoader();
-  const data = await fetchHits(query, page);
+  const data = await fetchHits(query, page, per_page);
   renderHits(data.hits);
   hideLoader();
   checkBtnVisibleStatus();

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export async function fetchHits(query, currentPage) {
+export async function fetchHits(query, currentPage, per_page) {
   const API_KEY = '41712066-bd7b5e249df7a86bd45ef70ea';
   const BASE_URL = 'https://pixabay.com/api/';
 
@@ -12,7 +12,7 @@ export async function fetchHits(query, currentPage) {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    per_page: 15,
+    per_page: per_page,
     page: currentPage,
   };
 
